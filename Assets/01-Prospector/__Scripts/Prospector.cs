@@ -19,7 +19,18 @@ public class Prospector : MonoBehaviour
 	static public Prospector 	S;
     static public int SCORE_FROM_PREVIOUS_ROUND = 0;
 	static public int HIGH_SCORE = 0;
+/*
+    [Header("Bezier Curve Management")]
+	public Transform fsPosMidObject;
+	public Transform fsPosRunObject;
+	public Transform fsPosMid2Object;
+	public Transform fsPosEndObject;
 
+	public Vector3 fsPosMid;
+	public Vector3 fsPosRun;
+	public Vector3 fsPosMid2;
+	public Vector3 fsPosEnd;
+*/
 	[Header("Set in Inspector")]
 	public Deck			deck;
     public TextAsset    deckXML;
@@ -343,12 +354,12 @@ public class Prospector : MonoBehaviour
     { 
         if (won) 
         { 
-            //print ("Game Over. You won! :)");
+            // print ("Game Over. You won! :)");
 			ScoreManager(ScoreEvent.gameWin);
         } 
         else 
         { 
-            //print ("Game Over. You Lost. :("); 
+            // print ("Game Over. You Lost. :("); 
 			ScoreManager(ScoreEvent.gameLoss);
         } 
         // Reload the scene, resetting the game 
@@ -371,24 +382,25 @@ public class Prospector : MonoBehaviour
         // Otherwise, return false 
         return(false); 
     }
-    //ScoreManager handles all the scoring
+    // ScoreManager handles all the scoring
 	void ScoreManager(ScoreEvent sEvt)
 	{
+
 		List<Vector3> fsPts;
 		switch (sEvt)
 		{
-		//Same things need to happen whether it's a draw, a win, or a loss
-		case ScoreEvent.draw: //Drawing a card
-		case ScoreEvent.gameWin: //Won the round
-		case ScoreEvent.gameLoss: //Lost the round
-			chain = 0; //resets the score chain
-			score += scoreRun; //Add scoreRun to the total score
-			scoreRun = 0; //reset scoreRun
+		// Same things need to happen whether it's a draw, a win, or a loss
+		case ScoreEvent.draw: // Drawing a card
+		case ScoreEvent.gameWin: // Won the round
+		case ScoreEvent.gameLoss: // Lost the round
+			chain = 0; // resets the score chain
+			score += scoreRun; // Add scoreRun to the total score
+			scoreRun = 0; // reset scoreRun
 /*
-			//Add fsRun to the _Scoreboard score
+			// Add fsRun to the _Scoreboard score
 			if (fsRun != null)
 			{
-				//Create points for the Bezier curve
+				// Create points for the Bezier curve
 				fsPts = new List<Vector3>();
 				fsPts.Add(fsPosRun);
 				fsPts.Add(fsPosMid2);
@@ -396,23 +408,24 @@ public class Prospector : MonoBehaviour
 				fsRun.reportFinishTo = Scoreboard.S.gameObject;
 				fsRun.Init(fsPts, 0, 1);
 
-				//Also adjust the fontSize
+				// Also adjust the fontSize
 				fsRun.fontSizes = new List<float>(new float[] {28, 36, 4});
 				fsRun = null; //Clear fsRun so it's created again
 			}
 */
 			break;
-		case ScoreEvent.mine: //Remove a mine card
-			chain++; //Increase the score chain
-			scoreRun += chain; //add score for this card to run
-
-			//Create a FloatingScore for this score
-			FloatingScore fs;
 /*
-			//Move it from the mousePosition to fsPosRun
+		case ScoreEvent.mine: // Remove a mine card
+			chain++; // Increase the score chain
+			scoreRun += chain; // add score for this card to run
+
+			// Create a FloatingScore for this score
+			FloatingScore fs;
+
+			// Move it from the mousePosition to fsPosRun
 			Vector3 p0 = Input.mousePosition;
-			//p0.x /= Screen.width;
-			//p0.y /= Screen.height;
+			// p0.x /= Screen.width;
+			// p0.y /= Screen.height;
 			fsPts = new List<Vector3>();
 			fsPts.Add(p0);
 			fsPts.Add(fsPosMid);
@@ -430,26 +443,25 @@ public class Prospector : MonoBehaviour
 			}
 */
 			break;
-
 		}
 
-		//This second switch statement handles round wins and losses
+		// This second switch statement handles round wins and losses
 		switch (sEvt)
 		{
 		case ScoreEvent.gameWin:
 			GTGameOver.text = "Round Over";
-			//If it's a win, add the score to the next round. static fields are NOT reset by reloading the level
+			// If it's a win, add the score to the next round. static fields are NOT reset by reloading the level
 			Prospector.SCORE_FROM_PREVIOUS_ROUND = score;
-			//print("You won this round! Round score: " + score);
+			// print("You won this round! Round score: " + score);
 			GTRoundResult.text = "You won this round! Play another to add to your score!\nRound Score: " + score;
 			ShowResultsGTs(true);
 			break;
 		case ScoreEvent.gameLoss:
 			GTGameOver.text = "Game Over";
-			//If it's a loss, check against the high score
+			// If it's a loss, check against the high score
 			if (Prospector.HIGH_SCORE <= score)
 			{
-				//print("You got the high score! High score: " + score);
+				// print("You got the high score! High score: " + score);
 				string sRR = "You got the high score!\nHigh score: " + score;
 				GTRoundResult.text = sRR;
 				Prospector.HIGH_SCORE = score;
@@ -463,7 +475,7 @@ public class Prospector : MonoBehaviour
 			ShowResultsGTs(true);
 			break;
 		default: 
-			//print("score: " + score + " scoreRun: " + scoreRun + " chain: " + chain);
+			// print("score: " + score + " scoreRun: " + scoreRun + " chain: " + chain);
 			break;
 		}
 	}

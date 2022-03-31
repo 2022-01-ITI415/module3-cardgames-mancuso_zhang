@@ -21,7 +21,7 @@ public class FloatingScore : MonoBehaviour
     [SerializeField] 
     protected int       _score = 0; 
     public string       scoreString; 
-// The score property sets both _score and scoreString 
+    // The score property sets both _score and scoreString 
     public int score 
     { 
         get 
@@ -45,9 +45,9 @@ public class FloatingScore : MonoBehaviour
     public string         easingCurve = Easing.InOut; // Uses Easing in Utils.cs 
     
     // The GameObject that will receive the SendMessage when this is done moving 
-    public GameObject      reportFinishTo = null; 
-    private RectTransform rectTrans; 
-    private Text          txt; 
+    public GameObject       reportFinishTo = null; 
+    private RectTransform   rectTrans; 
+    private Text            txt; 
     
     // Set up the FloatingScore and movement 
     // Note the use of parameter defaults for eTimeS & eTimeD 
