@@ -28,7 +28,6 @@ public class Deck : MonoBehaviour
 	[Header("Set Dynamically")]
 
 	public PT_XMLReader					xmlr;
-	// add from p 569
 	public List<string>					cardNames;
 	public List<Card>					cards;
 	public List<Decorator>				decorators;
@@ -36,11 +35,9 @@ public class Deck : MonoBehaviour
 	public Transform					deckAnchor;
 	public Dictionary<string, Sprite>	dictSuits;
 
-
 	// called by Prospector when it is ready
 	public void InitDeck(string deckXMLText) 
 	{
-		// from page 576
 		if (GameObject.Find("_Deck") == null) 
 		{
 			GameObject anchorGO = new GameObject("_Deck");
@@ -55,12 +52,9 @@ public class Deck : MonoBehaviour
 			{"H", suitHeart},
 			{"S", suitSpade}
 		};
-		
-		// -------- end from page 576
 		ReadDeck (deckXMLText);
 		MakeCards();
 	}
-
 
 	// ReadDeck parses the XML file passed to it into Card Definitions
 	public void ReadDeck(string deckXMLText)
@@ -74,7 +68,7 @@ public class Deck : MonoBehaviour
 		s += " x=" + xmlr.xml ["xml"] [0] ["decorator"] [0].att ("x");
 		s += " y=" + xmlr.xml ["xml"] [0] ["decorator"] [0].att ("y");
 		s += " scale=" + xmlr.xml ["xml"] [0] ["decorator"] [0].att ("scale");
-		print (s);
+		// print(s);
 		
 		//Read decorators for all cards
 		// these are the small numbers/suits in the corners
@@ -88,8 +82,13 @@ public class Deck : MonoBehaviour
 			// for each decorator in the XML, copy attributes and set up location and flip if needed
 			deco = new Decorator();
 			deco.type = xDecos[i].att ("type");
-			deco.flip = (xDecos[i].att ("flip") == "1"); // too cute by half - if it's 1, set to 1, else set to 0
+
+			// Set the bool flip based on whether the text of the attribute is "1" or something else.
+			// which will be assigned to deco.flip
+			deco.flip = (xDecos[i].att ("flip") == "1");
+
 			deco.scale = float.Parse (xDecos[i].att("scale"));
+			// Vector3 loc initializes to [0,0,0], so we just need to modify it
 			deco.loc.x = float.Parse (xDecos[i].att("x"));
 			deco.loc.y = float.Parse (xDecos[i].att("y"));
 			deco.loc.z = float.Parse (xDecos[i].att("z"));
@@ -114,11 +113,14 @@ public class Deck : MonoBehaviour
 				{
 					deco = new Decorator();
 					deco.type = "pip";
-					deco.flip = (xPips[j].att ("flip") == "1"); // too cute by half - if it's 1, set to 1, else set to 0
+					// Set the bool flip based on whether the text of the attribute is "1" or something else.
+					// which will be assigned to deco.flip
+					deco.flip = (xPips[j].att ("flip") == "1");
 					
 					deco.loc.x = float.Parse (xPips[j].att("x"));
 					deco.loc.y = float.Parse (xPips[j].att("y"));
 					deco.loc.z = float.Parse (xPips[j].att("z"));
+
 					if (xPips[j].HasAtt("scale")) 
 					{
 						deco.scale = float.Parse (xPips[j].att("scale"));
@@ -157,9 +159,9 @@ public class Deck : MonoBehaviour
 		string[] letters = new string[] {"C","D","H","S"};
 		foreach (string s in letters) 
 		{
-			for (int i =0; i<13; i++) 
+			for (int i = 0; i < 13; i++) 
 			{
-				cardNames.Add(s+(i+1));
+				cardNames.Add(s + (i + 1));
 			}
 		}
 		
@@ -171,12 +173,13 @@ public class Deck : MonoBehaviour
 		GameObject tGO = null;
 		SpriteRenderer tSR = null;  // so tempted to make a D&D ref here...
 		
-		for (int i = 0; i < cardNames.Count; i++) {
+		for (int i = 0; i < cardNames.Count; i++) 
+		{
 			GameObject cgo = Instantiate(prefabCard) as GameObject;
 			cgo.transform.parent = deckAnchor;
 			Card card = cgo.GetComponent<Card>();
 			
-			cgo.transform.localPosition = new Vector3(i%13*3, i/13*4, 0);
+			cgo.transform.localPosition = new Vector3 ((i % 13) * 3, i/13 * 4, 0);
 			
 			card.name = cardNames[i];
 			card.suit = card.name[0].ToString();
@@ -194,7 +197,8 @@ public class Deck : MonoBehaviour
 			foreach (Decorator deco in decorators) 
 			{
 				tGO = Instantiate(prefabSprite) as GameObject;
-					tSR = tGO.GetComponent<SpriteRenderer>();
+				tSR = tGO.GetComponent<SpriteRenderer>();
+
 				if (deco.type == "suit") 
 				{
 					tSR.sprite = dictSuits[card.suit];
@@ -221,12 +225,11 @@ public class Deck : MonoBehaviour
 				}
 				
 				tGO.name = deco.type;
-				
 				card.decoGOs.Add (tGO);
 			} 	// foreach Deco
 			
 			
-			//Add the pips
+			// Add the pips
 			foreach (Decorator pip in card.def.pips) 
 			{
 				tGO = Instantiate(prefabSprite) as GameObject;
@@ -250,13 +253,13 @@ public class Deck : MonoBehaviour
 				card.pipGOs.Add (tGO);
 			}
 			
-			//Handle face cards
+			// Handle face cards
 			if (card.def.face != "") 
 			{
 				tGO = Instantiate(prefabSprite) as GameObject;
 				tSR = tGO.GetComponent<SpriteRenderer>();
 				
-				tS = GetFace(card.def.face+card.suit);
+				tS = GetFace(card.def.face + card.suit);
 				tSR.sprite = tS;
 
 				tSR.sortingOrder = 1;
@@ -290,7 +293,8 @@ public class Deck : MonoBehaviour
 				return (tS);
 			}
 		}				//foreach	
-		return (null);  // couldn't find the sprite (should never reach this line)
+		// couldn't find the sprite (should never reach this line)
+		return (null);  
 	}					// getFace 
 
 	static public void Shuffle(ref List<Card> oCards)

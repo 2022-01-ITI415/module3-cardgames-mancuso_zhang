@@ -19,7 +19,9 @@ public class Prospector : MonoBehaviour
 	static public Prospector 	S;
     static public int SCORE_FROM_PREVIOUS_ROUND = 0;
 	static public int HIGH_SCORE = 0;
-/*
+
+	public float reloadDelay = 5.0f; //The delay between rounds
+
     [Header("Bezier Curve Management")]
 	public Transform fsPosMidObject;
 	public Transform fsPosRunObject;
@@ -30,7 +32,7 @@ public class Prospector : MonoBehaviour
 	public Vector3 fsPosRun;
 	public Vector3 fsPosMid2;
 	public Vector3 fsPosEnd;
-*/
+
 	[Header("Set in Inspector")]
 	public Deck			deck;
     public TextAsset    deckXML;
@@ -60,19 +62,19 @@ public class Prospector : MonoBehaviour
     {
 		S = this; // Prospector singleton
 
-        //Check for a high score in PlayerPrefs
+        // Check for a high score in PlayerPrefs
 		if (PlayerPrefs.HasKey("ProspectorHighScore"))
 		{
 			HIGH_SCORE = PlayerPrefs.GetInt("ProspectorHighScore");
 		}
 
-		//Add the score from the last round, which will be >0 if it was a win
+		// Add the score from the last round, which will be >0 if it was a win
 		score += SCORE_FROM_PREVIOUS_ROUND;
 
-		//And reset the SCORE_FROM_PREVIOUS_ROUND
+		// And reset the SCORE_FROM_PREVIOUS_ROUND
 		SCORE_FROM_PREVIOUS_ROUND = 0;
 
-		//Set up the Texts that show at the end of the round. Set the Text Components
+		// Set up the Texts that show at the end of the round. Set the Text Components
 		GameObject go = GameObject.Find("GameOver");
 		if (go != null)
 		{
@@ -85,7 +87,7 @@ public class Prospector : MonoBehaviour
 			GTRoundResult = go.GetComponent<Text>();
 		}
 
-		//Make them invisible
+		// Make them invisible
 		ShowResultsGTs(false);
 
 		go = GameObject.Find("HighScore");
@@ -103,16 +105,23 @@ public class Prospector : MonoBehaviour
     {
         Scoreboard.S.score = score;
 
-		deck = GetComponent<Deck> ();
-		deck.InitDeck (deckXML.text);
-        Deck.Shuffle(ref deck.cards);
+		deck = GetComponent<Deck> (); 		// gets the Deck
+		deck.InitDeck (deckXML.text); 		// pass the DeckXML to it
+        Deck.Shuffle(ref deck.cards); 		// shuffles the deck
+		// The ref keyword passes a reference to deck.cards, which allows
+		// deck.cards to be modified by Deck.Shuffle()
 
-		layout = GetComponent<Layout>();  // Get the Layout component 
-        layout.ReadLayout(layoutXML.text); // Pass LayoutXML to it
+		layout = GetComponent<Layout>();  	// Get the Layout  
+        layout.ReadLayout(layoutXML.text); 	// Pass LayoutXML to it
 
 		drawPile = ConvertListCardsToListCardProspectors(deck.cards);
 		LayoutGame();
 
+		//Get Bezier curve positions
+		fsPosMid = fsPosMidObject.position;
+		fsPosRun = fsPosRunObject.position;
+		fsPosMid2 = fsPosMid2Object.position;
+		fsPosEnd = fsPosEndObject.position;
 	}
 
 	List<CardProspector> ConvertListCardsToListCardProspectors(List<Card> lCD) 
@@ -129,8 +138,8 @@ public class Prospector : MonoBehaviour
 
 	CardProspector Draw() 
     { 
-        CardProspector cd = drawPile[0]; // Pull the 0th CardProspector 
-        drawPile.RemoveAt(0);            // Then remove it from List<> drawPile 
+        CardProspector cd = drawPile[0]; 	// Pull the 0th CardProspector 
+        drawPile.RemoveAt(0);            	// Then remove it from List<> drawPile 
         return(cd);           
 	}
 
@@ -180,13 +189,14 @@ public class Prospector : MonoBehaviour
         	
             cp.layoutID = tSD.id; 
         	cp.slotDef = tSD; 
-    		
+    		cp.state = eCardState.tableau; 
+
             // CardProspectors in the tableau have the state CardState.tableau 
-        	cp.state = eCardState.tableau; 
 			cp.SetSortingLayerName(tSD.layerName);
     		tableau.Add(cp); // Add this CardProspector to the List<> tableau     
 	  	}
 
+		// set which cards are hiding others
 		foreach (CardProspector tCP in tableau) 
         { 
             foreach( int hid in tCP.slotDef.hiddenBy ) 
@@ -196,6 +206,7 @@ public class Prospector : MonoBehaviour
             } 
      	}
 
+		// set up the initial target card
 		MoveToTarget(Draw()); 
      	// Set up the Draw pile 
       	UpdateDrawPile();
@@ -229,13 +240,13 @@ public class Prospector : MonoBehaviour
         // Position this card on the discardPile 
         cd.transform.localPosition = new Vector3( 
             layout.multiplier.x * layout.discardPile.x, 
-            layout.multiplier.y * layout.multiplier.y, 
+            layout.multiplier.y * layout.discardPile.y, // changed discardPile to multiplier?
             -layout.discardPile.layerID+0.5f ); 
         cd.faceUp = true; 
 
         // Place it on top of the pile for depth sorting 
         cd.SetSortingLayerName(layout.discardPile.layerName); 
-        cd.SetSortOrder(-100+discardPile.Count); 
+        cd.SetSortOrder(-100 + discardPile.Count); 
     } 
 
     // Make cd the new target card 
@@ -250,7 +261,7 @@ public class Prospector : MonoBehaviour
         // Move to the target position 
         cd.transform.localPosition = new Vector3( 
             layout.multiplier.x * layout.discardPile.x, 
-            layout.multiplier.y * layout.multiplier.y, 
+            layout.multiplier.y * layout.discardPile.y, // changed discardPile to multiplier?
             -layout.discardPile.layerID ); 
  		cd.faceUp = true; // Make it face-up 
         
@@ -280,7 +291,7 @@ public class Prospector : MonoBehaviour
             
             // Set depth sorting 
             cd.SetSortingLayerName(layout.drawPile.layerName); 
-            cd.SetSortOrder(-10*i); 
+            cd.SetSortOrder(-10 * i); 
           } 
     }
 
@@ -295,9 +306,9 @@ public class Prospector : MonoBehaviour
 
  			case eCardState.drawpile: 
             	// Clicking any card in the drawPile will draw the next card 
-            	MoveToDiscard(target); // Moves the target to the discardPile 
-            	MoveToTarget(Draw());  // Moves the next drawn card to the target 
-            	UpdateDrawPile();     // Restacks the drawPile
+            	MoveToDiscard(target);	// Moves the target to the discardPile 
+            	MoveToTarget(Draw());   // Moves the next drawn card to the target 
+            	UpdateDrawPile();     	// Restacks the drawPile
 				ScoreManager(ScoreEvent.draw);
             	break; 
 
@@ -363,8 +374,14 @@ public class Prospector : MonoBehaviour
 			ScoreManager(ScoreEvent.gameLoss);
         } 
         // Reload the scene, resetting the game 
-        SceneManager.LoadScene("__Prospector_Scene_0"); 
+        Invoke("ReloadLevel", reloadDelay);
     }
+	
+	void ReloadLevel()
+	{
+		//Reload trhe scene, resetting the game
+		SceneManager.LoadScene("__Prospector_Scene_0");
+	}
 
 	public bool AdjacentRank(CardProspector c0, CardProspector c1) 
     { 
@@ -382,6 +399,7 @@ public class Prospector : MonoBehaviour
         // Otherwise, return false 
         return(false); 
     }
+
     // ScoreManager handles all the scoring
 	void ScoreManager(ScoreEvent sEvt)
 	{
@@ -390,13 +408,13 @@ public class Prospector : MonoBehaviour
 		switch (sEvt)
 		{
 		// Same things need to happen whether it's a draw, a win, or a loss
-		case ScoreEvent.draw: // Drawing a card
-		case ScoreEvent.gameWin: // Won the round
-		case ScoreEvent.gameLoss: // Lost the round
-			chain = 0; // resets the score chain
-			score += scoreRun; // Add scoreRun to the total score
-			scoreRun = 0; // reset scoreRun
-/*
+		case ScoreEvent.draw: 		// Drawing a card
+		case ScoreEvent.gameWin: 	// Won the round
+		case ScoreEvent.gameLoss: 	// Lost the round
+			chain = 0; 				// resets the score chain
+			score += scoreRun; 		// Add scoreRun to the total score
+			scoreRun = 0; 			// reset scoreRun
+
 			// Add fsRun to the _Scoreboard score
 			if (fsRun != null)
 			{
@@ -410,14 +428,14 @@ public class Prospector : MonoBehaviour
 
 				// Also adjust the fontSize
 				fsRun.fontSizes = new List<float>(new float[] {28, 36, 4});
-				fsRun = null; //Clear fsRun so it's created again
+				fsRun = null; 		// Clear fsRun so it's created again
 			}
-*/
+
 			break;
-/*
-		case ScoreEvent.mine: // Remove a mine card
-			chain++; // Increase the score chain
-			scoreRun += chain; // add score for this card to run
+
+		case ScoreEvent.mine: 		// Remove a mine card
+			chain++; 				// Increase the score chain
+			scoreRun += chain; 		// add score for this card to run
 
 			// Create a FloatingScore for this score
 			FloatingScore fs;
@@ -441,7 +459,7 @@ public class Prospector : MonoBehaviour
 			{
 				fs.reportFinishTo = fsRun.gameObject;
 			}
-*/
+
 			break;
 		}
 
