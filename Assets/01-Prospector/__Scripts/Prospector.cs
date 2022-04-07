@@ -380,7 +380,7 @@ public class Prospector : MonoBehaviour
 	void ReloadLevel()
 	{
 		//Reload trhe scene, resetting the game
-		SceneManager.LoadScene("__Prospector_Scene_0");
+		SceneManager.LoadScene("_Prospector_Scene_1");
 	}
 
 	public bool AdjacentRank(CardProspector c0, CardProspector c1) 
