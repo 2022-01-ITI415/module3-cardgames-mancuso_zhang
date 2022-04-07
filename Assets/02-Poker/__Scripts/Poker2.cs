@@ -4,9 +4,9 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Poker : MonoBehaviour 
+public class Poker2 : MonoBehaviour 
 {
-	static public Poker 	S;
+	static public Poker2 	S;
     static public int SCORE_FROM_PREVIOUS_ROUND = 0;
 	static public int HIGH_SCORE = 0;
 
@@ -50,12 +50,12 @@ public class Poker : MonoBehaviour
 
 	void Awake()
     {
-		S = this; // Poker singleton
+		S = this; // Poker2 singleton
 
         // Check for a high score in PlayerPrefs
-		if (PlayerPrefs.HasKey("PokerHighScore"))
+		if (PlayerPrefs.HasKey("Poker2HighScore"))
 		{
-			HIGH_SCORE = PlayerPrefs.GetInt("PokerHighScore");
+			HIGH_SCORE = PlayerPrefs.GetInt("Poker2HighScore");
 		}
 
 		// Add the score from the last round, which will be >0 if it was a win
@@ -372,7 +372,7 @@ public class Poker : MonoBehaviour
 	void ReloadLevel()
 	{
 		//Reload trhe scene, resetting the game
-		SceneManager.LoadScene("Poker_Scene_2");
+		SceneManager.LoadScene("Poker2_Scene_2");
 	}
 
 	public bool AdjacentRank(CardProspector c0, CardProspector c1) 
@@ -461,7 +461,7 @@ public class Poker : MonoBehaviour
 		case ScoreEvent.gameWin:
 			GTGameOver.text = "Round Over";
 			// If it's a win, add the score to the next round. static fields are NOT reset by reloading the level
-			Poker.SCORE_FROM_PREVIOUS_ROUND = score;
+			Poker2.SCORE_FROM_PREVIOUS_ROUND = score;
 			// print("You won this round! Round score: " + score);
 			GTRoundResult.text = "You won this round! Play another to add to your score!\nRound Score: " + score;
 			ShowResultsGTs(true);
@@ -469,13 +469,13 @@ public class Poker : MonoBehaviour
 		case ScoreEvent.gameLoss:
 			GTGameOver.text = "Game Over";
 			// If it's a loss, check against the high score
-			if (Poker.HIGH_SCORE <= score)
+			if (Poker2.HIGH_SCORE <= score)
 			{
 				// print("You got the high score! High score: " + score);
 				string sRR = "You got the high score!\nHigh score: " + score;
 				GTRoundResult.text = sRR;
-				Poker.HIGH_SCORE = score;
-				PlayerPrefs.SetInt("PokerHighScore", score);
+				Poker2.HIGH_SCORE = score;
+				PlayerPrefs.SetInt("Poker2HighScore", score);
 			}
 			else
 			{
