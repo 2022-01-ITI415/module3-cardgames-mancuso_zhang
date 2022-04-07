@@ -746,7 +746,7 @@ MonoBehaviour:
   deck: {fileID: 0}
   deckXML: {fileID: 4900000, guid: 3dd23ff7eb19ff745b31a3335f8dee2c, type: 3}
   layout: {fileID: 0}
-  layoutXML: {fileID: 4900000, guid: f0c5a11c73192e54ca3a27d0881d9d22, type: 3}
+  layoutXML: {fileID: 4900000, guid: 9d0fa597d7a141e4792f123cdbd12861, type: 3}
   xOffset: 3
   yOffset: -2.5
   layoutCenter: {x: 0, y: 0, z: 0}
