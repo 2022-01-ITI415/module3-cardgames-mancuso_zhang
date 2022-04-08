@@ -316,19 +316,7 @@ public class Poker : MonoBehaviour
            GameOver(true); 
            return; 
         }
-        // If there are still cards in the draw pile, the game's not over
-	    if (drawPile.Count > 0) return; 
-     
-        // Check for remaining valid plays 
-        foreach (CardPoker cp in tableau) 
-        { 
-            // If there is a valid play, the game's not over 
-            // if (AdjacentRank(cp, target)) return; 
-			break;
-        } 
-        // Since there are no valid plays, the game is over 
-        // Call GameOver with a loss 
-        GameOver (false); 
+		GameOver(false);
     } 
 
     // Called when the game is over. Simple for now, but expandable 
@@ -337,12 +325,12 @@ public class Poker : MonoBehaviour
         if (won) 
         { 
             // print ("Game Over. You won! :)");
-			ScoreManager(ScoreEvent.gameWin);
+			ScoreManager score = new ScoreManager();
+			score.Score(PokerHand.gameFin);
         } 
         else 
         { 
-            // print ("Game Over. You Lost. :("); 
-			ScoreManager(ScoreEvent.gameLoss);
+            return;
         } 
         // Reload the scene, resetting the game 
         Invoke("ReloadLevel", reloadDelay);
@@ -352,44 +340,5 @@ public class Poker : MonoBehaviour
 	{
 		//Reload trhe scene, resetting the game
 		SceneManager.LoadScene("Poker_Scene_2");
-	}
-
-    // ScoreManager handles all the scoring
-	void ScoreManager(ScoreEvent sEvt)
-	{
-
-		// // This second switch statement handles round wins and losses
-		// switch (sEvt)
-		// {
-		// case ScoreEvent.gameWin:
-		// 	GTGameOver.text = "Round Over";
-		// 	// If it's a win, add the score to the next round. static fields are NOT reset by reloading the level
-		// 	Poker.SCORE_FROM_PREVIOUS_ROUND = score;
-		// 	// print("You won this round! Round score: " + score);
-		// 	GTRoundResult.text = "You won this round! Play another to add to your score!\nRound Score: " + score;
-		// 	ShowResultsGTs(true);
-		// 	break;
-		// case ScoreEvent.gameLoss:
-		// 	GTGameOver.text = "Game Over";
-		// 	// If it's a loss, check against the high score
-		// 	if (Poker.HIGH_SCORE <= score)
-		// 	{
-		// 		// print("You got the high score! High score: " + score);
-		// 		string sRR = "You got the high score!\nHigh score: " + score;
-		// 		GTRoundResult.text = sRR;
-		// 		Poker.HIGH_SCORE = score;
-		// 		PlayerPrefs.SetInt("PokerHighScore", score);
-		// 	}
-		// 	else
-		// 	{
-		// 		//print("Your final score for the game was:" + score);
-		// 		GTRoundResult.text = "Your final score was: " + score;
-		// 	}
-		// 	ShowResultsGTs(true);
-		// 	break;
-		// default: 
-		// 	// print("score: " + score + " scoreRun: " + scoreRun + " chain: " + chain);
-		// 	break;
-		// }
 	}
 }

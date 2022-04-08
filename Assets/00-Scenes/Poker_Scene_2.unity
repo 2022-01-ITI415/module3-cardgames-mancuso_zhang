@@ -650,7 +650,7 @@ MonoBehaviour:
     hiddenBy: 
     type: slot
     stagger: {x: 0, y: 0}
-  temporary:
+  temporaryPile:
     x: 0
     y: 0
     faceUp: 0
@@ -692,6 +692,7 @@ MonoBehaviour:
   drawPile: []
   tableau: []
   discardPile: []
+  temporary: []
   fsRun: {fileID: 0}
   GTGameOver: {fileID: 0}
   GTRoundResult: {fileID: 0}
