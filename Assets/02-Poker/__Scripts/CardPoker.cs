@@ -8,7 +8,8 @@ public enum CardState
     drawpile, 
     tableau, 
     target, 
-    discard 
+    discard,
+    temporary
 } 
 
 public class CardPoker : Card // Make sure CardPoker extends Card  

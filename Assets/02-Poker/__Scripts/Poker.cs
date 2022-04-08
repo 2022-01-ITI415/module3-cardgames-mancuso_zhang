@@ -12,17 +12,6 @@ public class Poker : MonoBehaviour
 
 	public float reloadDelay = 5.0f; //The delay between rounds
 
-    [Header("Bezier Curve Management")]
-	public Transform fsPosMidObject;
-	public Transform fsPosRunObject;
-	public Transform fsPosMid2Object;
-	public Transform fsPosEndObject;
-
-	public Vector3 fsPosMid;
-	public Vector3 fsPosRun;
-	public Vector3 fsPosMid2;
-	public Vector3 fsPosEnd;
-
 	[Header("Set in Inspector")]
 	public Deck			deck;
     public TextAsset    deckXML;
@@ -34,35 +23,33 @@ public class Poker : MonoBehaviour
     public Vector3      layoutCenter;
 	public Transform    layoutAnchor; 
 
-    public CardPoker           target; 
-    public List<CardPoker>     drawPile;
-    public List<CardPoker>     tableau; 
-    public List<CardPoker>     discardPile;
-
-    //Fields to track score info
-	public int chain = 0;
-	public int scoreRun = 0;
-	public int score = 0;
+    public CardPoker		target; 
+    public List<CardPoker>	drawPile;
+    public List<CardPoker>	tableau; 
+    public List<CardPoker>	discardPile;
+	public List<CardPoker>	temporary;
 
     public FloatingScore fsRun;
 	public Text GTGameOver;
 	public Text GTRoundResult;
 
+	public GameObject prefabCard;
+
 	void Awake()
     {
 		S = this; // Poker singleton
 
-        // Check for a high score in PlayerPrefs
-		if (PlayerPrefs.HasKey("PokerHighScore"))
-		{
-			HIGH_SCORE = PlayerPrefs.GetInt("PokerHighScore");
-		}
+    //     // Check for a high score in PlayerPrefs
+	// 	if (PlayerPrefs.HasKey("PokerHighScore"))
+	// 	{
+	// 		HIGH_SCORE = PlayerPrefs.GetInt("PokerHighScore");
+	// 	}
 
-		// Add the score from the last round, which will be >0 if it was a win
-		score += SCORE_FROM_PREVIOUS_ROUND;
+	// 	// Add the score from the last round, which will be >0 if it was a win
+	// 	score += SCORE_FROM_PREVIOUS_ROUND;
 
-		// And reset the SCORE_FROM_PREVIOUS_ROUND
-		SCORE_FROM_PREVIOUS_ROUND = 0;
+	// 	// And reset the SCORE_FROM_PREVIOUS_ROUND
+	// 	SCORE_FROM_PREVIOUS_ROUND = 0;
 
 		// Set up the Texts that show at the end of the round. Set the Text Components
 		GameObject go = GameObject.Find("GameOver");
@@ -93,7 +80,7 @@ public class Poker : MonoBehaviour
 
 	void Start() 
     {
-        Scoreboard.S.score = score;
+        // Scoreboard.S.score = score;
 
 		deck = GetComponent<Deck> (); 		// gets the Deck
 		deck.InitDeck (deckXML.text); 		// pass the DeckXML to it
@@ -106,12 +93,6 @@ public class Poker : MonoBehaviour
 
 		drawPile = ConvertListCardsToListCardPokers(deck.cards);
 		LayoutGame();
-
-		//Get Bezier curve positions
-		fsPosMid = fsPosMidObject.position;
-		fsPosRun = fsPosRunObject.position;
-		fsPosMid2 = fsPosMid2Object.position;
-		fsPosEnd = fsPosEndObject.position;
 	}
 
 	List<CardPoker> ConvertListCardsToListCardPokers(List<Card> lCD) 
@@ -129,7 +110,7 @@ public class Poker : MonoBehaviour
 	CardPoker Draw() 
     { 
         CardPoker cp = drawPile[0]; 	// Pull the 0th CardPoker 
-        drawPile.RemoveAt(0);            	// Then remove it from List<> drawPile 
+        drawPile.RemoveAt(0);           // Then remove it from List<> drawPile 
         return(cp);           
 	}
 
@@ -151,7 +132,7 @@ public class Poker : MonoBehaviour
 
 	void LayoutGame() 
     { 
-        // Create an empty GameObject to serve as an anchor for the tableau // a 
+        // Create an empty GameObject to serve as an anchor for the tableau
         if (layoutAnchor == null) 
         { 
             GameObject tGO = new GameObject("_LayoutAnchor"); 
@@ -161,9 +142,13 @@ public class Poker : MonoBehaviour
         }
 
 		CardPoker cp; 
+
       	// Follow the layout 
       	foreach (SlotDef tSD in layout.slotDefs) 
-          { 
+        { 
+			// GameObject cp = Instantiate(prefabCard) as GameObject;	// creates an instant of the prefabCard for the grid
+			// cp.transform.parent = layoutAnchor;						// Make its parent layoutAnchor 
+
           	// ^ Iterate through all the SlotDefs in the layout.slotDefs as tSD 
           	cp = Draw();                            // Pull a card from the top (beginning) of the draw Pile 
           	cp.faceUp = tSD.faceUp;                 // Set its faceUp to the value in SlotDef 
@@ -176,36 +161,23 @@ public class Poker : MonoBehaviour
                 layout.multiplier.y * tSD.y, 
                 -tSD.layerID ); 
         	// ^ Set the localPosition of the card based on slotDef 
-        	
+			
             cp.layoutID = tSD.id; 
         	cp.slotDef = tSD; 
     		cp.state = CardState.tableau; 
 
-            // CardPokers in the tableau have the state CardState.tableau 
-			cp.SetSortingLayerName(tSD.layerName);
     		tableau.Add(cp); // Add this CardPoker to the List<> tableau     
 	  	}
-
-		// set which cards are hiding others
-		//foreach (CardPoker tCP in tableau) 
-        //{ 
-        //    foreach( int hid in tCP.slotDef.hiddenBy ) 
-        //    { 
-        //        cp = FindCardByLayoutID(hid); 
-        //        tCP.hiddenBy.Add(cp); 
-        //    } 
-     	//}
-
 		// set up the initial target card
 		MoveToTarget(Draw()); 
      	// Set up the Draw pile 
       	UpdateDrawPile();
 	}
 	 
-    // This turns cards in the Mine face-up or face-down 
+    // This turns cards face-up (testing phase)
     void SetTableauFaces(CardPoker cp) 
     {
-        cp.faceUp = true;
+		cp.faceUp = true;
     }
 
 	void MoveToDiscard(CardPoker cp) 
@@ -218,7 +190,7 @@ public class Poker : MonoBehaviour
         // Position this card on the discardPile 
         cp.transform.localPosition = new Vector3( 
             layout.multiplier.x * layout.discardPile.x, 
-            layout.multiplier.y * layout.discardPile.y, // changed discardPile to multiplier?
+            layout.multiplier.y * layout.discardPile.y,
             -layout.discardPile.layerID+0.5f ); 
         cp.faceUp = true; 
 
@@ -242,10 +214,38 @@ public class Poker : MonoBehaviour
             layout.multiplier.y * layout.discardPile.y,
             -layout.discardPile.layerID ); 
  		cp.faceUp = true; // Make it face-up 
-        
-        // Set the depth sorting 
-        cp.SetSortingLayerName(layout.discardPile.layerName); 
-        cp.SetSortOrder(0); 
+    }
+
+	public void MoveToTemporaryPile(CardPoker cp)
+	{
+		cp.state = CardState.temporary;
+
+		cp.transform.parent = layoutAnchor;
+		cp.transform.localPosition = new Vector3(
+        	layout.multiplier.x* layout.temporaryPile.x,
+        	layout.multiplier.y* layout.temporaryPile.y,
+        	-layout.temporaryPile.layerID + 0.5f);
+		cp.faceUp = true;
+	}
+
+	public void PlaceCard(CardPoker cp)
+    {   
+		temporary.Add(target);						// Add it to the temporary List<>
+		
+		target.state = CardState.tableau;			// Set the target to state of tableau 
+		target.transform.parent = layoutAnchor;     // Update its transform parent 
+
+		SlotDef tSD = cp.slotDef;
+		// Position this card on the slotDef 
+        target.transform.localPosition = new Vector3( 	// Find the location of the target
+            layout.multiplier.x * tSD.x, 
+            layout.multiplier.y * tSD.y, 
+            -tSD.layerID); 
+        // cp.faceUp = true; 								
+
+		target.layoutID = tSD.id; 			// Change target.ID to the cp.ID
+        target.slotDef = tSD; 				// Change target.slotDef to cp.slotDef (switch)
+		target = cp;
     }
 
 	void UpdateDrawPile() 
@@ -284,11 +284,7 @@ public class Poker : MonoBehaviour
           		break; 
 
  			case CardState.drawpile: 
-            	// // Clicking any card in the drawPile will draw the next card 
-            	// MoveToDiscard(target);	// Moves the target to the discardPile 
-            	// MoveToTarget(Draw());   // Moves the next drawn card to the target 
-            	// UpdateDrawPile();     	// Restacks the drawPile
-				// ScoreManager(ScoreEvent.draw);
+            	// Clicking any card in the drawPile does nothing
             	break; 
 
  			case CardState.tableau: 
@@ -303,23 +299,12 @@ public class Poker : MonoBehaviour
 
                 // If we got here, then: Yay! It's a valid card. 
                 tableau.Remove(cp);         // Remove it from the tableau List 
-                SwitchCard(cp);
-             	//MoveToTarget(cp); 
-				SetTableauFaces(cp);
-				ScoreManager(ScoreEvent.mine);
+				PlaceCard(cp);
+				MoveToTemporaryPile(cp);
+				// ScoreManager(ScoreEvent.mine);
             	break; 
       	}
 		CheckForGameOver(); 
-    }
-
-    public void SwitchCard(CardPoker cp)
-    {   
-        
-        CardPoker temp = target;
-        cp = target;
-        target = temp;
-
-        tableau.Add(cp); // Add this CardPoker to the List<> tableau       
     }
 
     void CheckForGameOver() 
@@ -373,97 +358,38 @@ public class Poker : MonoBehaviour
 	void ScoreManager(ScoreEvent sEvt)
 	{
 
-		List<Vector3> fsPts;
-		switch (sEvt)
-		{
-		// Same things need to happen whether it's a draw, a win, or a loss
-		case ScoreEvent.draw: 		// Drawing a card
-		case ScoreEvent.gameWin: 	// Won the round
-		case ScoreEvent.gameLoss: 	// Lost the round
-			chain = 0; 				// resets the score chain
-			score += scoreRun; 		// Add scoreRun to the total score
-			scoreRun = 0; 			// reset scoreRun
-
-			// Add fsRun to the _Scoreboard score
-			if (fsRun != null)
-			{
-				// Create points for the Bezier curve
-				fsPts = new List<Vector3>();
-				fsPts.Add(fsPosRun);
-				fsPts.Add(fsPosMid2);
-				fsPts.Add(fsPosEnd);
-				fsRun.reportFinishTo = Scoreboard.S.gameObject;
-				fsRun.Init(fsPts, 0, 1);
-
-				// Also adjust the fontSize
-				fsRun.fontSizes = new List<float>(new float[] {28, 36, 4});
-				fsRun = null; 		// Clear fsRun so it's created again
-			}
-
-			break;
-
-		case ScoreEvent.mine: 		// Remove a mine card
-			chain++; 				// Increase the score chain
-			scoreRun += chain; 		// add score for this card to run
-
-			// Create a FloatingScore for this score
-			FloatingScore fs;
-
-			// Move it from the mousePosition to fsPosRun
-			Vector3 p0 = Input.mousePosition;
-			// p0.x /= Screen.width;
-			// p0.y /= Screen.height;
-			fsPts = new List<Vector3>();
-			fsPts.Add(p0);
-			fsPts.Add(fsPosMid);
-			fsPts.Add(fsPosRun);
-			fs = Scoreboard.S.CreateFloatingScore(chain, fsPts);
-			fs.fontSizes = new List<float>(new float[] { 4, 50, 28 });
-			if (fsRun == null)
-			{
-				fsRun = fs;
-				fsRun.reportFinishTo = null;
-			}
-			else
-			{
-				fs.reportFinishTo = fsRun.gameObject;
-			}
-
-			break;
-		}
-
-		// This second switch statement handles round wins and losses
-		switch (sEvt)
-		{
-		case ScoreEvent.gameWin:
-			GTGameOver.text = "Round Over";
-			// If it's a win, add the score to the next round. static fields are NOT reset by reloading the level
-			Poker.SCORE_FROM_PREVIOUS_ROUND = score;
-			// print("You won this round! Round score: " + score);
-			GTRoundResult.text = "You won this round! Play another to add to your score!\nRound Score: " + score;
-			ShowResultsGTs(true);
-			break;
-		case ScoreEvent.gameLoss:
-			GTGameOver.text = "Game Over";
-			// If it's a loss, check against the high score
-			if (Poker.HIGH_SCORE <= score)
-			{
-				// print("You got the high score! High score: " + score);
-				string sRR = "You got the high score!\nHigh score: " + score;
-				GTRoundResult.text = sRR;
-				Poker.HIGH_SCORE = score;
-				PlayerPrefs.SetInt("PokerHighScore", score);
-			}
-			else
-			{
-				//print("Your final score for the game was:" + score);
-				GTRoundResult.text = "Your final score was: " + score;
-			}
-			ShowResultsGTs(true);
-			break;
-		default: 
-			// print("score: " + score + " scoreRun: " + scoreRun + " chain: " + chain);
-			break;
-		}
+		// // This second switch statement handles round wins and losses
+		// switch (sEvt)
+		// {
+		// case ScoreEvent.gameWin:
+		// 	GTGameOver.text = "Round Over";
+		// 	// If it's a win, add the score to the next round. static fields are NOT reset by reloading the level
+		// 	Poker.SCORE_FROM_PREVIOUS_ROUND = score;
+		// 	// print("You won this round! Round score: " + score);
+		// 	GTRoundResult.text = "You won this round! Play another to add to your score!\nRound Score: " + score;
+		// 	ShowResultsGTs(true);
+		// 	break;
+		// case ScoreEvent.gameLoss:
+		// 	GTGameOver.text = "Game Over";
+		// 	// If it's a loss, check against the high score
+		// 	if (Poker.HIGH_SCORE <= score)
+		// 	{
+		// 		// print("You got the high score! High score: " + score);
+		// 		string sRR = "You got the high score!\nHigh score: " + score;
+		// 		GTRoundResult.text = sRR;
+		// 		Poker.HIGH_SCORE = score;
+		// 		PlayerPrefs.SetInt("PokerHighScore", score);
+		// 	}
+		// 	else
+		// 	{
+		// 		//print("Your final score for the game was:" + score);
+		// 		GTRoundResult.text = "Your final score was: " + score;
+		// 	}
+		// 	ShowResultsGTs(true);
+		// 	break;
+		// default: 
+		// 	// print("score: " + score + " scoreRun: " + scoreRun + " chain: " + chain);
+		// 	break;
+		// }
 	}
 }

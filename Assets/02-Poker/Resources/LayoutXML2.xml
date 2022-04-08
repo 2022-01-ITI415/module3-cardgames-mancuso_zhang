@@ -39,10 +39,13 @@
 	<slot id="24" x="1"    y="-4" 	faceup="0" layer="0" />
 	
 	<!-- This positions the draw pile and staggers it -->
-	<slot type="drawpile" x="5" y="4" xstagger="0.15" layer="4"/>
+	<slot type="drawpile" x="5" y="4" xstagger="0.1" layer="2"/>
 	
 	<!-- This positions the discard pile and target card -->
-	<slot type="discardpile" x="6" y="1" layer="5"/>
+	<slot type="discardpile" x="6" y="1" layer="2"/>
+
+	<!-- This positions the temporary pile and the target card -->
+	<slot type="temporary" x="6" y="1" layer="2"/>
 	
 </xml>
 	
