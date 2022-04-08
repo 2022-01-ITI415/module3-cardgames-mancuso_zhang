@@ -526,7 +526,6 @@ GameObject:
   - component: {fileID: 827460514}
   - component: {fileID: 827460515}
   - component: {fileID: 827460511}
-  - component: {fileID: 827460517}
   m_Layer: 0
   m_Name: _MainCamera
   m_TagString: MainCamera
@@ -730,7 +729,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 827460508}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3833d9df3a83f9a4db6567f6344667c8, type: 3}
   m_Name: 
@@ -747,46 +746,7 @@ MonoBehaviour:
   deck: {fileID: 0}
   deckXML: {fileID: 4900000, guid: 3dd23ff7eb19ff745b31a3335f8dee2c, type: 3}
   layout: {fileID: 0}
-  layoutXML: {fileID: 4900000, guid: 9d0fa597d7a141e4792f123cdbd12861, type: 3}
-  xOffset: 3
-  yOffset: -2.5
-  layoutCenter: {x: 0, y: 0, z: 0}
-  layoutAnchor: {fileID: 0}
-  target: {fileID: 0}
-  drawPile: []
-  tableau: []
-  discardPile: []
-  chain: 0
-  scoreRun: 0
-  score: 0
-  fsRun: {fileID: 0}
-  GTGameOver: {fileID: 0}
-  GTRoundResult: {fileID: 0}
---- !u!114 &827460517
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 827460508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23ad2a67f881f154fb43927394132d75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  reloadDelay: 5
-  fsPosMidObject: {fileID: 68226790}
-  fsPosRunObject: {fileID: 782635605}
-  fsPosMid2Object: {fileID: 288778073}
-  fsPosEndObject: {fileID: 19755426}
-  fsPosMid: {x: 0, y: 0, z: 0}
-  fsPosRun: {x: 0, y: 0, z: 0}
-  fsPosMid2: {x: 0, y: 0, z: 0}
-  fsPosEnd: {x: 0, y: 0, z: 0}
-  deck: {fileID: 0}
-  deckXML: {fileID: 4900000, guid: 3dd23ff7eb19ff745b31a3335f8dee2c, type: 3}
-  layout: {fileID: 0}
-  layoutXML: {fileID: 4900000, guid: 9d0fa597d7a141e4792f123cdbd12861, type: 3}
+  layoutXML: {fileID: 4900000, guid: f0c5a11c73192e54ca3a27d0881d9d22, type: 3}
   xOffset: 3
   yOffset: -2.5
   layoutCenter: {x: 0, y: 0, z: 0}

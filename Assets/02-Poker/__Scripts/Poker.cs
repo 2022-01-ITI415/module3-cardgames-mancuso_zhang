@@ -187,14 +187,14 @@ public class Poker : MonoBehaviour
 	  	}
 
 		// set which cards are hiding others
-		foreach (CardPoker tCP in tableau) 
-        { 
-            foreach( int hid in tCP.slotDef.hiddenBy ) 
-            { 
-                cp = FindCardByLayoutID(hid); 
-                tCP.hiddenBy.Add(cp); 
-            } 
-     	}
+		//foreach (CardPoker tCP in tableau) 
+        //{ 
+        //    foreach( int hid in tCP.slotDef.hiddenBy ) 
+        //    { 
+        //        cp = FindCardByLayoutID(hid); 
+        //        tCP.hiddenBy.Add(cp); 
+        //    } 
+     	//}
 
 		// set up the initial target card
 		MoveToTarget(Draw()); 
@@ -203,21 +203,9 @@ public class Poker : MonoBehaviour
 	}
 	 
     // This turns cards in the Mine face-up or face-down 
-    void SetTableauFaces() 
-    { 
-        foreach( CardPoker cp in tableau ) 
-        { 
-            bool faceUp = true;         // Assume the card will be face-up 
-            foreach( CardPoker cover in cp.hiddenBy ) 
-            { 
-                // If either of the covering cards are in the tableau 
-                if (cover.state == CardState.tableau) 
-                { 
-                    faceUp = false;     // then this card is face-down 
-                } 
-            } 
-            cp.faceUp = faceUp;         // Set the value on the card 
-        } 
+    void SetTableauFaces(CardPoker cp) 
+    {
+        cp.faceUp = true;
     }
 
 	void MoveToDiscard(CardPoker cp) 
@@ -239,7 +227,7 @@ public class Poker : MonoBehaviour
         cp.SetSortOrder(-100 + discardPile.Count); 
     } 
 
-    // Make cp the new target card 
+    // Make cp the new target card (starting card location)
     void MoveToTarget(CardPoker cp) 
     { 
         // If there is currently a target card, move it to discardPile 
@@ -251,7 +239,7 @@ public class Poker : MonoBehaviour
         // Move to the target position 
         cp.transform.localPosition = new Vector3( 
             layout.multiplier.x * layout.discardPile.x, 
-            layout.multiplier.y * layout.discardPile.y, // changed discardPile to multiplier?
+            layout.multiplier.y * layout.discardPile.y,
             -layout.discardPile.layerID ); 
  		cp.faceUp = true; // Make it face-up 
         
@@ -260,14 +248,12 @@ public class Poker : MonoBehaviour
         cp.SetSortOrder(0); 
     }
 
-
-
 	void UpdateDrawPile() 
     { 
         CardPoker cp; 
         
         // Go through all the cards of the drawPile 
-        for (int i=0; i<drawPile.Count; i++) 
+        for (int i = 0; i < drawPile.Count; i++) 
         { 
             cp = drawPile[i]; 
             cp.transform.parent = layoutAnchor; 
@@ -288,7 +274,8 @@ public class Poker : MonoBehaviour
     }
 
 	public void CardClicked(CardPoker cp) 
-    { 
+    {
+        
         // The reaction is determined by the state of the clicked card 
       	switch (cp.state) 
         { 
@@ -307,24 +294,35 @@ public class Poker : MonoBehaviour
  			case CardState.tableau: 
             	// Clicking a card in the tableau will check if it's a valid play 
 				bool validMatch = true; 
-             	if (!cp.faceUp) 
+             	if (cp.faceUp) 
                 { 
-                // If the card is face-down, it's not valid 
+                // If the card is face-up, it's not valid 
                  	validMatch = false; 
              	}  
              	if (!validMatch) return;    // return if not valid 
-        		
+
                 // If we got here, then: Yay! It's a valid card. 
-             	tableau.Remove(cp);         // Remove it from the tableau List 
-             	MoveToTarget(cp); 
-				SetTableauFaces();
+                tableau.Remove(cp);         // Remove it from the tableau List 
+                SwitchCard(cp);
+             	//MoveToTarget(cp); 
+				SetTableauFaces(cp);
 				ScoreManager(ScoreEvent.mine);
             	break; 
       	}
 		CheckForGameOver(); 
     }
 
-	void CheckForGameOver() 
+    public void SwitchCard(CardPoker cp)
+    {   
+        
+        CardPoker temp = target;
+        cp = target;
+        target = temp;
+
+        tableau.Add(cp); // Add this CardPoker to the List<> tableau       
+    }
+
+    void CheckForGameOver() 
     { 
        // If the tableau is empty, the game is over 
        if (tableau.Count == 0) 

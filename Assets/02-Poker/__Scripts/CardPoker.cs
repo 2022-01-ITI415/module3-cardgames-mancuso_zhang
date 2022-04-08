@@ -15,7 +15,7 @@ public class CardPoker : Card // Make sure CardPoker extends Card
 {  
     [Header("Set Dynamically: CardPoker")] 
     // This is how you use the enum CardState 
-    public CardState            state = CardState.drawpile; 
+    public CardState            state = CardState.tableau; 
     // The hiddenBy list stores which other cards will keep this one face down 
     public List<CardPoker>      hiddenBy = new List<CardPoker>(); 
     // The layoutID matches this card to the tableau XML if it's a tableau card 
