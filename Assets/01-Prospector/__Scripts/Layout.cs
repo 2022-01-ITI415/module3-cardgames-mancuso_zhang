@@ -28,6 +28,7 @@ public class Layout : MonoBehaviour
     public List<SlotDef>    slotDefs;       // All the SlotDefs for Row0-Row3 
     public SlotDef          drawPile; 
     public SlotDef          discardPile; 
+    public SlotDef          temporaryPile;
 
     // This holds all of the possible names for the layers set by layerID 
     public string[] sortingLayerNames = new string[] {"Row0","Row1","Row2","Row3","Discard","Draw"}; 
@@ -95,6 +96,10 @@ public class Layout : MonoBehaviour
             case "discardpile": 
                 discardPile = tSD; 
                 break; 
+
+            case "temporary":
+                temporaryPile = tSD;
+                break;
             } 
         } 
     } 

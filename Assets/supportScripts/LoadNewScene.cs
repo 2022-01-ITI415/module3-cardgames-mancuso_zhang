@@ -7,14 +7,14 @@ public class LoadNewScene : MonoBehaviour
 {
     public void LoadScene0()
     {
-        SceneManager.LoadScene("mainScene");
+        SceneManager.LoadScene("__Main_Scene_0");
     }
     public void LoadScene1()
     {
-        SceneManager.LoadScene("__Prospector_Scene_0");
+        SceneManager.LoadScene("_Prospector_Scene_1");
     }
     public void LoadScene2()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("Poker_Scene_2");
     }
 }
