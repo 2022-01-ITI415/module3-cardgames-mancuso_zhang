@@ -89,6 +89,7 @@ public class Prospector : MonoBehaviour
 
 		// Make them invisible
 		ShowResultsGTs(false);
+		ScoreManager score = score.GameBegin(PokerHand.begin);
 
 		go = GameObject.Find("HighScore");
 		string hScore = "High score: " + Utils.AddCommasToNumber(HIGH_SCORE);

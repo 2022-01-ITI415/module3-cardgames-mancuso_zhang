@@ -191,7 +191,7 @@ public class Poker : MonoBehaviour
         cp.transform.localPosition = new Vector3( 
             layout.multiplier.x * layout.discardPile.x, 
             layout.multiplier.y * layout.discardPile.y,
-            -layout.discardPile.layerID+0.5f ); 
+            -layout.discardPile.layerID + 0.5f ); 
         cp.faceUp = true; 
 
         // Place it on top of the pile for depth sorting 
@@ -301,6 +301,7 @@ public class Poker : MonoBehaviour
                 tableau.Remove(cp);         // Remove it from the tableau List 
 				PlaceCard(cp);
 				MoveToTemporaryPile(cp);
+                
 				// ScoreManager(ScoreEvent.mine);
             	break; 
       	}
@@ -325,8 +326,15 @@ public class Poker : MonoBehaviour
         if (won) 
         { 
             // print ("Game Over. You won! :)");
+
+
 			ScoreManager score = new ScoreManager();
-			score.Score(PokerHand.gameFin);
+
+            score.FindScore(PokerHand)
+			score.GameEnd(PokerHand.gameFin);
+
+			// ScoreManager score = new ScoreManager();
+			// score.GameEnd();
         } 
         else 
         { 
