@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum PokerHand 
 {
@@ -59,16 +60,16 @@ public class ScoreManager : MonoBehaviour
 
                 print("Game Over!");
 
-                row1.text = CycleCheckHand(GetRow(grid,0));
-                row2.text = CycleCheckHand(GetRow(grid,1));
-                row3.text = CycleCheckHand(GetRow(grid,2));
-                row4.text = CycleCheckHand(GetRow(grid,3));
-                row5.text = CycleCheckHand(GetRow(grid,4));
-                col1.text = CycleCheckHand(GetColumn(grid,0));
-                col2.text = CycleCheckHand(GetColumn(grid,1));
-                col3.text = CycleCheckHand(GetColumn(grid,2));
-                col4.text = CycleCheckHand(GetColumn(grid,3));
-                col5.text = CycleCheckHand(GetColumn(grid,4));
+                row1.text = ToString(CycleCheckHand(GetRow(grid,0)));
+                row2.text = ToString(CycleCheckHand(GetRow(grid,1)));
+                row3.text = ToString(CycleCheckHand(GetRow(grid,2)));
+                row4.text = ToString(CycleCheckHand(GetRow(grid,3)));
+                row5.text = ToString(CycleCheckHand(GetRow(grid,4)));
+                col1.text = ToString(CycleCheckHand(GetColumn(grid,0)));
+                col2.text = ToString(CycleCheckHand(GetColumn(grid,1)));
+                col3.text = ToString(CycleCheckHand(GetColumn(grid,2)));
+                col4.text = ToString(CycleCheckHand(GetColumn(grid,3)));
+                col5.text = ToString(CycleCheckHand(GetColumn(grid,4)));
 
                 break;
             default:
@@ -132,8 +133,7 @@ public class ScoreManager : MonoBehaviour
  
     int CheckHand (PokerHand pkh, int[] arr)
     {
-
-        int[] hand = {1, 1, 2, 2, 3};
+        string[] str;
         int check = 0;
         switch (pkh)
         {
@@ -146,14 +146,14 @@ public class ScoreManager : MonoBehaviour
                 break;
 
             case PokerHand.four:
-                if (Quadruple(int[] temp = new temp[5])) 
+                if (Quadruple(ConvertToRank(arr))) 
                 { 
                     check = 50; 
                 }
                 break;
 
             case PokerHand.fullHouse:
-                if (Double(int[] temp = new temp[5]) && Triple(int[] temp = new temp[5]))
+                if (Double(ConvertToRank(arr)) && Triple(ConvertToRank(arr)))
                 {
                     check = 25;
                 }
@@ -168,21 +168,21 @@ public class ScoreManager : MonoBehaviour
                 break;
 
             case PokerHand.three:
-                if (Trips(hand)) 
+                if (Trips(ConvertToRank(arr))) 
                 { 
                     check = 10; 
                 }
                 break;
 
             case PokerHand.twoPair:
-                if (Double(hand)) 
+                if (Double(ConvertToRank(arr))) 
                 { 
                     check = 5; 
                 }
                 break;
 
             case PokerHand.onePair:
-                if (Pair(hand)) 
+                if (Pair(ConvertToRank(arr))) 
                 { 
                     check = 2; 
                 }
@@ -194,9 +194,59 @@ public class ScoreManager : MonoBehaviour
         return check;
     }
 
+    int[] ConvertToRank (int[] arr)
+    {
+        foreach (int count in arr)
+        {
+            count = GetRank(count);
+        }
+        return arr;
+    }
+
+    string[] ConvertToSuit (int[] arr)
+    {
+        string[] str = new string[5];
+        for (i = 0; i < arr.Length(); i++)
+        {
+            str[i] = GetSuit(arr[i]);
+        }
+        return str;
+    }
+
+    int GetRank (int layoutID)
+    {
+        foreach (CardProspector tCP in tableau) 
+        { 
+            // Search through all cards in the tableau List<> 
+            if (tCP.layoutID == layoutID) 
+            { 
+               // If the card has the same ID, return the rank
+               return(tCP.rank); 
+            } 
+        } 
+        // If it's not found, return null 
+        return(null); 
+    }
+
+    string GetSuit (int layoutID) 
+    {
+        foreach (CardProspector tCP in tableau) 
+        { 
+            // Search through all cards in the tableau List<> 
+            if (tCP.layoutID == layoutID) 
+            { 
+               // If the card has the same ID, return the rank
+               return(tCP.suit); 
+            } 
+        } 
+        // If it's not found, return null 
+        return(null);
+    }
+
     bool Pair (int[] arr)
     {	
         var dict = new Dictionary < int, int > ();
+
         foreach (var count in arr) 
         {
 	        if (dict.ContainsKey(count))
@@ -296,7 +346,33 @@ public class ScoreManager : MonoBehaviour
 
     bool Straight (int[] arr)
     {
+        Array.Sort(arr);
+        bool check = false;
+        for(int i = 0; i < arr.Length()-1; i++)
+        {
+            if (Mathf.Abs(arr[i] - arr[i+1] == 1))
+            {
+                check = true;
+            }
+            else 
+            {
+                check = false;
+            }
+            if (!check) { return false; }
+        }
+        return check;
+
+    }
+
+    public bool AdjacentRank(CardProspector c0, CardProspector c1) 
+    { 
+        // If they are 1 apart, they are adjacent 
+        if (Mathf.Abs(c0.rank - c1.rank) == 1) return(true); 
+
+
         
+        // Otherwise, return false 
+        return(false); 
     }
 
     static public int[] GetRow(int[,] mat, int row)

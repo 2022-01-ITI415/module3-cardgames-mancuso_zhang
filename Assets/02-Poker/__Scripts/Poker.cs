@@ -1,8 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 
 public class Poker : MonoBehaviour 
 {
@@ -330,8 +330,7 @@ public class Poker : MonoBehaviour
 
 			ScoreManager score = new ScoreManager();
 
-            score.FindScore(PokerHand)
-			score.GameEnd(PokerHand.gameFin);
+			score.GameEnd();
 
 			// ScoreManager score = new ScoreManager();
 			// score.GameEnd();
