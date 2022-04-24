@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,27 +30,48 @@ public class Poker : MonoBehaviour
     public List<CardPoker>	discardPile;
 	public List<CardPoker>	temporary;
 
+    public int score = 0;
+
     public FloatingScore fsRun;
 	public Text GTGameOver;
 	public Text GTRoundResult;
 
 	public GameObject prefabCard;
 
+    static public int[,] grid = { {0,1,2,3,4},
+        {5,6,7,8,9},
+        {10,11,12,13,14},
+        {15,16,17,18,19},
+        {20,21,22,23,24} };
+
+    public Text row1;
+    public Text row2;
+    public Text row3;
+    public Text row4;
+    public Text row5;
+    public Text col1;
+    public Text col2;
+    public Text col3;
+    public Text col4;
+    public Text col5;
+
 	void Awake()
     {
 		S = this; // Poker singleton
 
-    //     // Check for a high score in PlayerPrefs
-	// 	if (PlayerPrefs.HasKey("PokerHighScore"))
-	// 	{
-	// 		HIGH_SCORE = PlayerPrefs.GetInt("PokerHighScore");
-	// 	}
+        SetText();
+        ShowScore(false);
+        // Check for a high score in PlayerPrefs
+		if (PlayerPrefs.HasKey("PokerHighScore"))
+		{
+			HIGH_SCORE = PlayerPrefs.GetInt("PokerHighScore");
+		}
 
-	// 	// Add the score from the last round, which will be >0 if it was a win
-	// 	score += SCORE_FROM_PREVIOUS_ROUND;
+		// Add the score from the last round, which will be >0 if it was a win
+		score = SCORE_FROM_PREVIOUS_ROUND;
 
-	// 	// And reset the SCORE_FROM_PREVIOUS_ROUND
-	// 	SCORE_FROM_PREVIOUS_ROUND = 0;
+		// And reset the SCORE_FROM_PREVIOUS_ROUND
+		SCORE_FROM_PREVIOUS_ROUND = 0;
 
 		// Set up the Texts that show at the end of the round. Set the Text Components
 		GameObject go = GameObject.Find("GameOver");
@@ -68,7 +90,7 @@ public class Poker : MonoBehaviour
 		ShowResultsGTs(false);
 
 		go = GameObject.Find("HighScore");
-		string hScore = "High score: " + Utils.AddCommasToNumber(HIGH_SCORE);
+		string hScore = "High score: " + HIGH_SCORE;
 		go.GetComponent<Text>().text = hScore;
 	}
 
@@ -77,6 +99,7 @@ public class Poker : MonoBehaviour
 		GTGameOver.gameObject.SetActive(show);
 		GTRoundResult.gameObject.SetActive(show);
 	}
+
 
 	void Start() 
     {
@@ -325,15 +348,41 @@ public class Poker : MonoBehaviour
     { 
         if (won) 
         { 
-            // print ("Game Over. You won! :)");
+            print("Game Over!");
 
+            row1.text = CheckHand(GetRow(grid,0)).ToString();
+            row2.text = CheckHand(GetRow(grid,1)).ToString();
+            row3.text = CheckHand(GetRow(grid,2)).ToString();
+            row4.text = CheckHand(GetRow(grid,3)).ToString();
+            row5.text = CheckHand(GetRow(grid,4)).ToString();
+            col1.text = CheckHand(GetColumn(grid,0)).ToString();
+            col2.text = CheckHand(GetColumn(grid,1)).ToString();
+            col3.text = CheckHand(GetColumn(grid,2)).ToString();
+            col4.text = CheckHand(GetColumn(grid,3)).ToString();
+            col5.text = CheckHand(GetColumn(grid,4)).ToString();
+            
+            for (int i = 0; i < 5; i++)
+            {
+                int temp = CheckHand(GetRow(grid,i));
+                score += temp;
+                temp = CheckHand(GetColumn(grid,i));
+                score += temp;
+            }
 
-			ScoreManager score = new ScoreManager();
+            GTGameOver.text = "Round Over!";
 
-			score.GameEnd();
+            // Poker.SCORE_FROM_PREVIOUS_ROUND = score;
 
-			// ScoreManager score = new ScoreManager();
-			// score.GameEnd();
+            string sRR = "Round Score: " + score;
+            GTRoundResult.text = sRR;
+            if (Poker.HIGH_SCORE <= score)
+            {
+                Poker.HIGH_SCORE = score;
+			    PlayerPrefs.SetInt("PokerHighScore", score);
+            }
+
+            ShowResultsGTs(true);
+            ShowScore(true);
         } 
         else 
         { 
@@ -347,5 +396,288 @@ public class Poker : MonoBehaviour
 	{
 		//Reload trhe scene, resetting the game
 		SceneManager.LoadScene("Poker_Scene_2");
+	}
+
+//
+//
+//
+//
+// The start of ScoreManager
+//
+//
+//
+//
+
+        public void SetText ()
+    {
+        GameObject go = GameObject.Find("row1");
+        if (go != null) { row1 = go.GetComponent<Text>(); }
+        go = GameObject.Find("row2");
+        if (go != null) { row2 = go.GetComponent<Text>(); }
+        go = GameObject.Find("row3");
+        if (go != null) { row3 = go.GetComponent<Text>(); }
+        go = GameObject.Find("row4");
+        if (go != null) { row4 = go.GetComponent<Text>(); }
+        go = GameObject.Find("row5");
+        if (go != null) { row5 = go.GetComponent<Text>(); }
+        go = GameObject.Find("col1");
+        if (go != null) { col1 = go.GetComponent<Text>(); }
+        go = GameObject.Find("col2");
+        if (go != null) { col2 = go.GetComponent<Text>(); }
+        go = GameObject.Find("col3");
+        if (go != null) { col3 = go.GetComponent<Text>(); }
+        go = GameObject.Find("col4");
+        if (go != null) { col4 = go.GetComponent<Text>(); }
+        go = GameObject.Find("col5");
+        if (go != null) { col5 = go.GetComponent<Text>(); }
+
+        // Make them invisible
+		ShowScore(false);
+    }
+
+        public void ShowScore(bool show)
+	{
+		row1.gameObject.SetActive(show);
+		row2.gameObject.SetActive(show);
+        row3.gameObject.SetActive(show);
+		row4.gameObject.SetActive(show);
+        row5.gameObject.SetActive(show);
+		col1.gameObject.SetActive(show);
+        col2.gameObject.SetActive(show);
+		col3.gameObject.SetActive(show);
+        col4.gameObject.SetActive(show);
+		col5.gameObject.SetActive(show);
+	}
+ 
+    int CheckHand (int[] arr)
+    {
+        string[] str = ConvertToSuit(arr);
+        arr = ConvertToRank(arr);
+        
+        if (Royal(arr) && Flush(str)) // royal flush
+        {
+            return 100;
+        }
+        else if (Straight(arr) && Flush(str)) // straight flush
+        {
+            return 75;
+        }
+        else if (Quads(arr)) // four of a kind
+        { 
+            return 50; 
+        }
+        else if (TwoPair(arr) && Trips(arr)) // full house
+        {
+            return 25;
+        }
+        else if (Flush(str)) // flush
+        {
+            return 20;
+        }
+        else if (Straight(arr)) // straight
+        {
+            return 15;
+        }
+        else if (Trips(arr)) // triple
+        { 
+            return 10; 
+        }
+        else if (TwoPair(arr)) // two pair
+        { 
+            return 5; 
+        }
+        else if (Pair(arr)) // one pair
+        { 
+            return 2; 
+        }
+        return 0;
+    }
+
+    int[] ConvertToRank (int[] arr)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            arr[i] = GetRank(arr[i]);
+        }
+        return arr;
+    }
+
+    string[] ConvertToSuit (int[] arr)
+    {
+        string[] str = new string[5];
+        for (int i = 0; i < 5; i++)
+        {
+            str[i] = GetSuit(arr[i]);
+        }
+        return str;
+    }
+
+    int GetRank (int layoutID)
+    {
+        foreach (CardPoker tCP in temporary) 
+        { 
+            // Search through all cards in the tableau List<> 
+            if (tCP.layoutID == layoutID) 
+            { 
+               // If the card has the same ID, return the rank
+               return(tCP.rank); 
+            } 
+        } 
+        // If it's not found, return null 
+        return(0); 
+    }
+
+    string GetSuit (int layoutID) 
+    {
+        foreach (CardPoker tCP in temporary) 
+        { 
+            // Search through all cards in the tableau List<> 
+            if (tCP.layoutID == layoutID) 
+            { 
+               // If the card has the same ID, return the rank
+               return(tCP.suit); 
+            } 
+        } 
+        // If it's not found, return null 
+        return(null);
+    }
+
+    Dictionary<int, int> Counting (int[] arr)
+    {
+        var dict = new Dictionary <int, int> ();
+
+        foreach (var count in arr) 
+        {
+	        if (dict.ContainsKey(count))
+            {
+                dict[count]++;
+            }
+            else
+            {
+                dict[count] = 1;
+            }
+        }
+        return dict;
+    }
+
+    bool Pair (int[] arr)
+    {	
+        var dict = Counting(arr);
+
+        foreach (var val in dict)
+        {
+            if (val.Value == 2)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+	
+	bool TwoPair (int[] arr)
+    {	
+        var dict = Counting(arr);
+        
+		int n = 0;
+        foreach (var val in dict)
+		{
+		 	if (val.Value >= 2)
+			{
+				n++;
+			}
+		}
+		if (n == 2)
+		{
+            return true;
+		}
+        return false;
+    }
+
+    bool Trips (int[] arr)
+    {	
+        var dict = Counting(arr);
+        
+        foreach (var val in dict)
+        {
+            if (val.Value == 3)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool Quads (int[] arr)
+    {
+        var dict = Counting(arr);
+        
+        foreach (var val in dict)
+		{
+		 	if (val.Value == 4)
+			{
+                return true;
+			}
+		}
+        return false;
+    }
+
+    bool Straight (int[] arr)
+    {
+        Array.Sort(arr);
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (Mathf.Abs(arr[i] - arr[i+1]) != 1)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool Flush (string[] arr)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            if (arr[i] != arr[1])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool Royal (int[] arr)
+    {
+        Array.Sort(arr);
+        int[] royals = {1,10,11,12,13};
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (arr[i] != royals[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int[] GetRow(int[,] mat, int row)
+	{
+		int[] temp = new int[5];
+		for (int i = 0; i < 5; i++)
+		{
+    		temp[i] = mat[row, i];
+		}
+		return temp;
+	}
+	
+	public int[] GetColumn(int[,] mat, int col)
+	{
+		int[] temp = new int[5];
+		for (int i = 0; i < 5; i++)
+		{
+    		temp[i] = mat[i, col];
+		}
+		return temp;
 	}
 }
